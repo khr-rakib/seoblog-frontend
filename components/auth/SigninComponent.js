@@ -1,11 +1,10 @@
 import Router from 'next/router';
 import { useState, useEffect } from 'react';
-import { isAuth, signUp } from '../../actions/auth';
+import { signIn, authenticate, isAuth } from '../../actions/auth';
 
 
-const SignupComponent = () => {
+const SigninComponent = () => {
     const [values, setValues] = useState({
-        name: "",
         email: "",
         password: "",
         error: "",
@@ -14,7 +13,7 @@ const SignupComponent = () => {
         showForm: true
     });
 
-    const { name, email, password, error, loading, message, showForm } = values;
+    const { email, password, error, loading, message, showForm } = values;
 
     useEffect(() => {
         isAuth() && Router.push('/');
@@ -28,17 +27,24 @@ const SignupComponent = () => {
         })
     }
 
-    const handleSignUp = e => {
+    const handleSignIn = e => {
         e.preventDefault();
         setValues({ ...values, loading: true, error: false })
 
-        const user = { name, email, password }
-        signUp(user)
+        const user = { email, password }
+        signIn(user)
             .then(data => {
                 if (data.error) {
                     setValues({ ...values, error: data.error, loading: false })
                 } else {
-                    setValues({ ...values, name: "", email: "", password: "", error: "", loading: false, message: data.msg, showForm: false })
+                    // authenticate user
+                    authenticate(data, () => {
+                        if (isAuth() && isAuth().role === 1) {
+                            Router.push('/admin');
+                        } else {
+                            Router.push('/user');
+                        }
+                    })
                 }
             })
     }
@@ -50,11 +56,7 @@ const SignupComponent = () => {
 
     const signupForm = () => {
         return (
-            <form onSubmit={handleSignUp}>
-                <div className="form-group">
-                    <label htmlFor="">Enter Your Name</label>
-                    <input name="name" value={name} type="text" className="form-control" onChange={handleChange} />
-                </div>
+            <form onSubmit={handleSignIn}>
                 <div className="form-group">
                     <label htmlFor="">Enter Your Email</label>
                     <input name="email" value={email} type="email" className="form-control" onChange={handleChange} />
@@ -63,7 +65,7 @@ const SignupComponent = () => {
                     <label htmlFor="">Enter Your Password</label>
                     <input name="password" value={password} type="password" className="form-control" onChange={handleChange} />
                 </div>
-                <button className="btn btn-primary mt-3">Sign Up</button>
+                <button className="btn btn-primary mt-3">Sign In</button>
             </form>
         )
     }
@@ -78,4 +80,4 @@ const SignupComponent = () => {
     );
 };
 
-export default SignupComponent;
+export default SigninComponent;

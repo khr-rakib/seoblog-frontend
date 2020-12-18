@@ -1,0 +1,12 @@
+#nprogress .bar {
+    height: 5px !important;
+}
+.ql-editor{
+    min-height: 400px;
+}
+.featured_image{
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    background-color: aliceblue;
+}
